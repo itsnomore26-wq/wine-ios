@@ -118,3 +118,13 @@ See `DECISIONS.md`. Adapt Madeira and keep FEX/DXMT for an initial D3D9/10/11-ca
 - Official runner-image docs show `macos-26` is the ARM64 label, while `macos-26-intel` selects x64. The previous macOS 26 run (38449793716) was therefore queued in the constrained ARM64 pool and was cancelled. Cancelled its obsolete push-triggered companion as well.
 - Changed the manual fallback option to `macos-26-intel`. The workflow cross-compiles the iOS ARM64 target, so an Intel host remains a valid build host. This fallback has not yet been run.
 - Latest disk check: C: 610,816,000 bytes free; J: 95,844,507,648 bytes free. No local build ran.
+
+### Intel fallback build in progress (2026-10-13)
+- Run 38450569658 on `macos-26-intel` has completed checkout and cache setup; its compiler-toolchain step remains active after about 15 minutes. The configured output target remains iOS ARM64. No completed stage artifact or IPA exists yet.
+- Latest disk check: C: 607,211,520 bytes free; J: 95,844,474,880 bytes free. No local build was run.
+
+### Fourth cloud build failure and iOS CMake adjustment (2026-10-13)
+- Run 38450569658 on `macos-26-intel` built the host `llvm-tblgen` target successfully (242/242 Ninja steps), then failed while configuring the iOS LLVM tree. The iOS configuration creates its native TableGen target as a macOS bundle, triggering the same missing BUNDLE DESTINATION error.
+- Full log saved at `artifacts/run-38450569658-toolchains.log`. Added `-DCMAKE_MACOSX_BUNDLE=OFF` to the iOS LLVM configuration as well as the host configuration.
+- Latest disk check: C: 607,477,760 bytes free; J: 95,844,102,144 bytes free. No local build ran.
+- Next: push and rerun on `macos-26-intel`; verify LLVM iOS build completes before advancing.

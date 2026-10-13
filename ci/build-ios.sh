@@ -70,6 +70,7 @@ cmake -S "$LLVM_SOURCE/llvm" -B "$LLVM_HOST" -G Ninja \
 cmake --build "$LLVM_HOST" --target llvm-tblgen --parallel "$JOBS"
 cmake -S "$LLVM_SOURCE/llvm" -B "$LLVM_IOS" -G Ninja \
   -DCMAKE_SYSTEM_NAME=iOS -DCMAKE_OSX_ARCHITECTURES=arm64 \
+  -DCMAKE_MACOSX_BUNDLE=OFF \
   -DCMAKE_OSX_SYSROOT=iphoneos -DCMAKE_OSX_DEPLOYMENT_TARGET=17.0 \
   -DCMAKE_BUILD_TYPE=Release -DLLVM_HOST_TRIPLE=arm64-apple-ios17.0 \
   -DLLVM_DEFAULT_TARGET_TRIPLE=arm64-apple-ios17.0 -DLLVM_TARGET_ARCH=host \

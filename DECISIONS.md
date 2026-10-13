@@ -83,3 +83,8 @@
 **Decision:** Change the manual fallback runner from `macos-26` to `macos-26-intel`.
 
 **Reason:** GitHub's official runner-image matrix maps `macos-26` to ARM64 and `macos-26-intel` to x64. The previous fallback was still waiting on the constrained ARM64 pool. The workflow cross-compiles the iOS ARM64 app, so an Intel host can build the requested target while Xcode 27 remains the primary lane.
+
+## 2026-10-13 — Disable bundle mode for the iOS LLVM tree too
+**Decision:** Pass `CMAKE_MACOSX_BUNDLE=OFF` to both the host and iOS LLVM configurations.
+
+**Reason:** The Intel cloud retry completed the host llvm-tblgen build, then reported the same bundle-install error while configuring the iOS LLVM tree's native TableGen target. Both configurations need command-line TableGen executables, not app bundles.
