@@ -10,7 +10,7 @@ on:
         default: xcode-27-arm64
         options:
           - xcode-27-arm64
-          - macos-26
+          - macos-26-intel
   push:
     branches: [main]
 

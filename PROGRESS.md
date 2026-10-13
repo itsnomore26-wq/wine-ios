@@ -109,3 +109,12 @@ See `DECISIONS.md`. Adapt Madeira and keep FEX/DXMT for an initial D3D9/10/11-ca
 - Added `-DCMAKE_MACOSX_BUNDLE=OFF` to the host LLVM configuration; `llvm-tblgen` is a command-line build tool and does not need an app bundle.
 - Latest disk check: C: 611,835,904 bytes free; J: 95,845,052,416 bytes free. No local build ran.
 - Next: push and retry the toolchain stage on macOS 26.
+
+### Fourth toolchain attempt queued (2026-10-13)
+- Fix committed as `f340457` and pushed to `main`. Workflow dispatch run 38449793716 uses the macOS 26 fallback; the job is queued/starting. An obsolete Xcode 27 run for commit `6d0f242` was cancelled.
+- Latest disk check: C: 615,325,696 bytes free; J: 95,844,507,648 bytes free. Logs stay in `artifacts/`; no local build ran.
+
+### Runner architecture correction (2026-10-13)
+- Official runner-image docs show `macos-26` is the ARM64 label, while `macos-26-intel` selects x64. The previous macOS 26 run (38449793716) was therefore queued in the constrained ARM64 pool and was cancelled. Cancelled its obsolete push-triggered companion as well.
+- Changed the manual fallback option to `macos-26-intel`. The workflow cross-compiles the iOS ARM64 target, so an Intel host remains a valid build host. This fallback has not yet been run.
+- Latest disk check: C: 610,816,000 bytes free; J: 95,844,507,648 bytes free. No local build ran.

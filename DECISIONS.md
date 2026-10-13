@@ -78,3 +78,8 @@
 **Decision:** Configure the native LLVM host build with `CMAKE_MACOSX_BUNDLE=OFF`.
 
 **Reason:** The third cloud toolchain run reached LLVM configuration, where CMake marked the command-line `llvm-tblgen` executable as a macOS app bundle. LLVM's install rule supplies a runtime destination but no bundle destination, causing CMake to stop. The host TableGen tool should be a regular executable.
+
+## 2026-10-13 — Use Intel macOS 26 as the capacity fallback
+**Decision:** Change the manual fallback runner from `macos-26` to `macos-26-intel`.
+
+**Reason:** GitHub's official runner-image matrix maps `macos-26` to ARM64 and `macos-26-intel` to x64. The previous fallback was still waiting on the constrained ARM64 pool. The workflow cross-compiles the iOS ARM64 app, so an Intel host can build the requested target while Xcode 27 remains the primary lane.
