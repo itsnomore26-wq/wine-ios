@@ -5,7 +5,7 @@
 <p align="center">
   <a href="https://discord.gg/4t5mNjwCn7"><img src="https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Finvites%2F4t5mNjwCn7%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&suffix=%20members&label=Discord&logo=discord&logoColor=white&color=5865F2&style=for-the-badge" alt="Join the Madeira Discord"></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://github.com/willfaust/Madeira/releases"><img src="https://img.shields.io/github/v/release/willfaust/Madeira?label=Release&style=for-the-badge&color=brightgreen" alt="Latest release"></a>
+  <strong>Unsigned build: in progress</strong>
   &nbsp;&nbsp;&nbsp;
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-GPL--3.0--or--later-yellow?style=for-the-badge" alt="License: GPL-3.0-or-later"></a>
 </p>
@@ -65,14 +65,13 @@ Because JIT needs a debugger, Madeira cannot be offered on the App Store.
 
 ## Installing
 
-1. Download the IPA from the [latest release](https://github.com/willfaust/Madeira/releases).
-2. Sideload it with your own Apple ID using SideStore, AltStore, Sideloadly,
-   Plume or a similar tool.
-3. Open Madeira and enable JIT. Automatic mode uses StikDebug when installed,
-   otherwise it guides you through the built-in setup; see
-   [JIT setup](docs/JIT.md).
-4. In **Settings**, check that **JIT** and **Memory+** both show a green check:
-   Madeira then says **Ready to play**.
+There is no derivative IPA yet. The upstream Madeira release is a different
+build and may include components excluded here. Once this repository's Actions
+workflow has produced and verified an IPA, download that run's
+`madeira-unsigned-ipa` artifact and sideload it with your own Apple ID using
+SideStore, AltStore, Sideloadly, Plume or a similar tool. Open Madeira, enable
+JIT through its built-in iOS 27 pairing flow or StikDebug, then verify **JIT**
+and **Memory+** show green in Settings. See [JIT setup](docs/JIT.md).
 
 Some 64-bit games need Microsoft's Visual C++ runtime, which is not included
 (see [Licensing](#licensing)).
@@ -80,14 +79,15 @@ Some 64-bit games need Microsoft's Visual C++ runtime, which is not included
 ## Building from source
 
 ```sh
-git clone --recurse-submodules https://github.com/willfaust/Madeira.git
+git clone --recurse-submodules <your GitHub repository URL>
 ```
 
-`FEX`, `wine`, `dxmt` and `madeira-dock` are submodules that point at Madeira's
-own forks; upstream checkouts will not build here. The build has several parts
-(the Wine unix libraries, the ARM64EC Windows modules, FEX, DXMT and the app)
-and some inputs that are not in the repository, such as the toolchains.
-[`docs/BUILDING.md`](docs/BUILDING.md) walks through all of it.
+The unsigned IPA is built by the two-job GitHub Actions workflow in
+`.github/workflows/unsigned-ipa.yml`. Run it with **Actions → Build unsigned iOS
+IPA → Run workflow**. The runtime job caches LLVM, Wine, FEX and DXMT build
+stages; the Xcode job packages the generated app. The workflow has not yet run,
+so its build recipe remains unverified. The historical upstream build notes in
+[`docs/BUILDING.md`](docs/BUILDING.md) explain the component build chain.
 
 ### Repository layout
 
@@ -95,7 +95,7 @@ and some inputs that are not in the repository, such as the toolchains.
 |---|---|
 | [`app/`](app) | The iOS app: SwiftUI front end, Wine bridge and bundled resources |
 | [`wine/`](https://github.com/willfaust/wine), [`FEX/`](https://github.com/willfaust/FEX), [`dxmt/`](https://github.com/willfaust/dxmt), [`madeira-dock/`](https://github.com/willfaust/madeira-dock) | Madeira's forks and the Steam client launcher (submodules) |
-| [`madeira-d3d12/`](madeira-d3d12) | The native Direct3D 12 runtime |
+| [`madeira-d3d12/`](madeira-d3d12) | Upstream D3D12 source, excluded from this derivative IPA |
 | [`build/`](build) | Build scripts and iOS-side sources, one folder per component |
 | [`tests/`](tests) | Host checks and x86, x86-64 and DXMT test programs |
 | [`tools/`](tools) | Helper scripts |

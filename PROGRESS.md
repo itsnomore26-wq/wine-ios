@@ -15,7 +15,7 @@ Start-of-session free space: C: 0.15 GB; J: 91.81 GB. Workspace began with only 
 
 Latest after source checkout (2026-10-13): C: 276.5 MB free; J: 88.9 GB free. C: briefly fell to 136 MB during tool startup/download activity; inspection found only small PowerShell startup/temp files written during the session and no large session files. It has since recovered above the session baseline. Local source and portable Git are on J:. The Madeira recursive submodule checkout consumed about 2.9 GB on J:; it is expected source material and no local compilation occurred.
 
-Latest check after source audit, Git cleanup and archive removal (2026-10-13): C: 630,693,888 bytes free (about 602 MiB); J: 95,947,358,208 bytes free (about 89.3 GiB). C: free space is above the session start. The redundant archive extraction/download were removed from `source/` and `downloads/`; the canonical checked-out tree remains under `project/`. No local build was run.
+Latest check after CI pipeline draft and source audit (2026-10-13): C: 638,234,624 bytes free (about 609 MiB); J: 95,947,321,344 bytes free (about 89.3 GiB). C: free space is above the session start. The redundant archive extraction/download were removed from `source/` and `downloads/`; the canonical checked-out tree remains under `project/`. No local build was run.
 
 ### Research findings
 - Madeira is the selected active base after a source and license audit. The previous Juice candidate was rejected: its own license text reserves all rights to the app, launcher and scripts.
@@ -37,14 +37,16 @@ See `DECISIONS.md`. Adapt Madeira and keep FEX/DXMT for an initial D3D9/10/11-ca
 ### Current session changes (2026-10-13)
 - Removed the tracked Apple converter dylib and Madeira D3D12 runtime/test binaries from the derived working tree. Removed their Xcode resource/signing references and startup canary link so proprietary converter code and D3D12 payload are not linked or copied into the app. Removed D3D12-only settings/diagnostics from the generated catalogue and game menu. DXMT's open D3D9/10/11 path remains the first graphics target.
 - Added a SwiftUI Files folder importer to the library `+` menu. It accesses the selected security-scoped folder while copying it into `drive_c` with a collision-safe name, then opens the imported folder in the existing executable browser. Existing manual browsing from `drive_c` remains available.
-- Static source review only so far. No local build or tests have been run. The derivative is now a single clean root commit (`c0e4ea5`) with the four pinned submodules. The original upstream remote/ref and stash were removed and unreachable objects pruned; `git rev-list --objects --all` found no `libmetalirconverter.dylib`. The macOS Actions workflow and complete generated dependency/toolchain stages remain to be written.
+- Added a two-job GitHub Actions draft: a cached macOS runtime build (LLVM, Wine, FEX, DXMT, 32-bit support and JIT pairing) exports generated app files, and a separate Xcode job packages an unsigned IPA plus manifest/logs. It defaults to `xcode-27-arm64` and offers `macos-26` as a manual runner fallback. This workflow has not been pushed or run; upstream's clean macOS build steps are partly unverified.
+- Removed the absent Microsoft VC++ runtime folder from Xcode resources. No Microsoft runtime binaries are included; games depending on those DLLs may require user-supplied official files or a Wine builtin.
+- Static source review only so far. No local build or tests have been run. The derivative is a two-commit clean history rooted at `c0e4ea5`, with the four pinned submodules. The original upstream remote/ref and stash were removed and unreachable objects pruned; `git rev-list --objects --all` found no `libmetalirconverter.dylib`. No IPA, workflow run, device test, JIT test or game test exists.
 
 ### Next
-1. Finish auditing the local EXE launch path and the Wine/LLVM build prerequisites; keep the existing iOS 27 JIT helper and entitlements.
-2. Add reproducible staged macOS GitHub Actions builds for the missing LLVM/llvm-mingw/Wine/FEX/DXMT outputs, then package an unsigned IPA and logs.
-3. Verify no proprietary converter or D3D12 payload is reachable from the clean derived Git history or final IPA.
-4. Create/push the derived GitHub repository and run the workflow; fix failures until a real IPA exists.
-5. Test on the iPhone 17 with JIT, then test free/legal game demos and document measured results.
+1. Audit the draft macOS build script against every stage's input/output and refine the unverified Wine/LLVM/DXMT configuration.
+2. Create/push the derived GitHub repository and run the two-stage workflow; fix failures until a real IPA exists.
+3. Scan the successful IPA for proprietary Apple converter/GPTK/D3DMetal/D3D12 payloads and record its SHA-256.
+4. Test on the iPhone 17 with JIT and the Files importer, then run the x86-64 and x86 hello-world EXEs.
+5. Test free/legal game demos and document measured results; address runtime dependencies and polish.
 
 ### Evidence links
 - Juice: https://github.com/ExoCore-Kernel/Juice

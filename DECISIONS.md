@@ -43,3 +43,13 @@
 **Decision:** Remove the in-app shader converter canary call and declarations, and omit D3D12-only configuration entries from the generated Settings catalog and library session menu.
 
 **Reason:** The canary was a hard link dependency on an object compiled only when the proprietary converter is available, which could prevent the allowed D3D9/10/11 build from linking. D3D12-only controls would also advertise functionality absent from this target.
+
+## 2026-10-13 — Split the unsigned build into runtime and package jobs
+**Decision:** Build native dependencies on a cached macOS runtime job, transfer only the generated app runtime payload as an Actions artifact, and package the unsigned IPA in a second Xcode job. Use the Xcode 27 runner by default with macOS 26 as a manual fallback.
+
+**Reason:** LLVM, Wine, FEX and DXMT stages can take hours and should reuse cloud caches. Keeping Xcode packaging separate preserves the heavy stage outputs across runner boundaries and makes its logs/artifact easier to inspect. The workflow has not yet been run.
+
+## 2026-10-13 — Do not bundle Microsoft VC++ runtime files
+**Decision:** Remove the missing `x86_64-vcruntime` resource reference and leave Microsoft's runtime DLLs out of the derivative package.
+
+**Reason:** Microsoft's redistribution terms limit distribution to licensed Visual Studio users and require eligible files to remain unmodified. No Visual Studio license or user-supplied runtime files are available in this workspace. Games that require those DLLs may need the user to provide official files or work with Wine builtins.
