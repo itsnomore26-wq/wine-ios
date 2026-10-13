@@ -22,7 +22,54 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  toolchains:
+    runs-on: ${{ inputs.runner || 'xcode-27-arm64' }}
+    timeout-minutes: 360
+    steps:
+      - name: Check out source and pinned submodules
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Fingerprint pinned submodules
+        id: pins
+        shell: bash
+        run: echo "value=$(git submodule status --recursive | shasum -a 256 | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache compiler toolchain stage
+        uses: actions/cache@v6
+        with:
+          path: |
+            toolchains/llvm-mingw-20260421-ucrt-macos-universal
+            toolchains/llvm-project
+            toolchains/llvm-host-build
+            toolchains/llvm-ios-build
+            ~/Library/Caches/Homebrew
+            ~/Library/Caches/ccache
+          key: wine-ios-toolchains-${{ runner.os }}-${{ runner.arch }}-${{ steps.pins.outputs.value }}-${{ hashFiles('ci/**', 'build/**/*.sh', 'build/**/*.py') }}
+          restore-keys: |
+            wine-ios-toolchains-${{ runner.os }}-${{ runner.arch }}-${{ steps.pins.outputs.value }}-
+
+      - name: Build compiler toolchains
+        shell: bash
+        run: |
+          mkdir -p artifacts
+          set -o pipefail
+          bash ci/build-ios.sh toolchains 2>&1 | tee artifacts/toolchains-build.log
+
+      - name: Upload compiler toolchain stage
+        uses: actions/upload-artifact@v5
+        with:
+          name: madeira-toolchains-stage-${{ github.run_number }}
+          path: |
+            artifacts/toolchains-stage.tar.gz
+            artifacts/toolchains-build.log
+          if-no-files-found: error
+          retention-days: 3
+
   runtime:
+    needs: toolchains
     # Xcode 27/iOS 27 is primary; macos-26 is a manual runner fallback.
     runs-on: ${{ inputs.runner || 'xcode-27-arm64' }}
     timeout-minutes: 360
@@ -42,10 +89,6 @@ jobs:
         uses: actions/cache@v6
         with:
           path: |
-            toolchains/llvm-mingw-20260421-ucrt-macos-universal
-            toolchains/llvm-project
-            toolchains/llvm-host-build
-            toolchains/llvm-ios-build
             FEX/build-ios
             FEX/build-arm64ec
             FEX/build-wow64
@@ -61,9 +104,19 @@ jobs:
             ~/Library/Caches/Homebrew
             ~/Library/Caches/org.swift.swiftpm
             ~/Library/Caches/ccache
-          key: wine-ios-${{ runner.os }}-${{ runner.arch }}-${{ steps.pins.outputs.value }}-${{ hashFiles('ci/**', 'build/**/*.sh', 'build/**/*.py', 'app/Madeira.xcodeproj/project.pbxproj') }}
+          key: wine-ios-runtime-${{ runner.os }}-${{ runner.arch }}-${{ steps.pins.outputs.value }}-${{ hashFiles('ci/**', 'build/**/*.sh', 'build/**/*.py', 'app/Madeira.xcodeproj/project.pbxproj') }}
           restore-keys: |
-            wine-ios-${{ runner.os }}-${{ runner.arch }}-${{ steps.pins.outputs.value }}-
+            wine-ios-runtime-${{ runner.os }}-${{ runner.arch }}-${{ steps.pins.outputs.value }}-
+
+      - name: Download compiler toolchain stage
+        uses: actions/download-artifact@v5
+        with:
+          name: madeira-toolchains-stage-${{ github.run_number }}
+          path: artifacts/toolchains-stage
+
+      - name: Restore compiler toolchains
+        shell: bash
+        run: tar -xzf artifacts/toolchains-stage/toolchains-stage.tar.gz -C .
 
       - name: Install Rust target for built-in iOS 27 pairing
         uses: actions-rust-lang/setup-rust-toolchain@v2
@@ -84,6 +137,7 @@ jobs:
           path: |
             artifacts/runtime-stage.tar.gz
             artifacts/runtime-build.log
+            artifacts/toolchains-stage/toolchains-build.log
           if-no-files-found: error
           retention-days: 3
 

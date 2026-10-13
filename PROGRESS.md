@@ -55,3 +55,10 @@ See `DECISIONS.md`. Adapt Madeira and keep FEX/DXMT for an initial D3D9/10/11-ca
 - StikJIT integration protocol: https://github.com/StikDebug/StikJIT/blob/main/INTEGRATION.md
 - Box64: https://github.com/ptitSeb/box64
 - MoltenVK: https://github.com/KhronosGroup/MoltenVK
+
+### CI refactor and disk check (2026-10-13)
+- Split cloud build into three independent runner stages: pinned LLVM/llvm-mingw toolchains, Wine/FEX/DXMT runtime, then Xcode unsigned packaging. Toolchain/runtime payloads and logs transfer through short-lived Actions artifacts; each heavy stage has its own cache key. Default runner remains `xcode-27-arm64`, with `macos-26` dispatch fallback.
+- The tar payload uses repository-relative paths and includes llvm-mingw, the iOS LLVM build (headers and static libraries), and LLVM headers required by later runtime steps.
+- Current disk check: C: 632,098,816 bytes free; J: 95,845,990,400 bytes free. C: had a small free-space fluctuation; two recent multi-megabyte temporary files were observed under Windows Temp, one disappeared while inspecting and another was locked by an active process. TEMP/TMP for this work remain redirected to `_env/temp`; no local build/toolchain install occurred. J: free space is unchanged.
+- Workflow has not been pushed or run. Portable Git is at `_env/tools/git/cmd/git.exe`; source branch remains `main`, with the previous three commits and two CI files modified.
+- Next: inspect diff and workflow syntax, commit the three-job pipeline, complete GitHub device authorization, create/push the repo, then debug cloud run.

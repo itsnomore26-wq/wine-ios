@@ -13,8 +13,8 @@ MINGW_SHA256="bd85a3975723815cef28dbbd2ca2cb0c926f6b348a12a0453f39f7af273cb3f7"
 
 mkdir -p "$ARTIFACTS" "$TOOLCHAINS"
 stage() { printf '\n\n===== %s =====\n' "$1"; }
-if [[ "$MODE" != all && "$MODE" != runtime && "$MODE" != package ]]; then
-    echo "usage: $0 [all|runtime|package]" >&2
+if [[ "$MODE" != all && "$MODE" != toolchains && "$MODE" != runtime && "$MODE" != package ]]; then
+    echo "usage: $0 [all|toolchains|runtime|package]" >&2
     exit 2
 fi
 
@@ -23,9 +23,12 @@ stage "Host tools and pinned llvm-mingw"
 brew install autoconf automake bison ccache cmake libtool meson ninja pkg-config xz
 export PATH="$(brew --prefix bison)/bin:$(brew --prefix llvm 2>/dev/null || true)/bin:$PATH"
 xcodebuild -downloadComponent MetalToolchain
+fi
 
 MINGW_ARCHIVE="$TOOLCHAINS/llvm-mingw-$MINGW_VERSION-ucrt-macos-universal.tar.xz"
 MINGW_DIR="$TOOLCHAINS/llvm-mingw-$MINGW_VERSION-ucrt-macos-universal"
+if [[ "$MODE" == all || "$MODE" == toolchains ]]; then
+stage "Fetch pinned llvm-mingw"
 if [[ ! -d "$MINGW_DIR" ]]; then
     curl --fail --location --retry 3 \
       "https://github.com/mstorsjo/llvm-mingw/releases/download/$MINGW_VERSION/llvm-mingw-$MINGW_VERSION-ucrt-macos-universal.tar.xz" \
@@ -74,6 +77,20 @@ cmake -S "$LLVM_SOURCE/llvm" -B "$LLVM_IOS" -G Ninja \
   -DLLVM_ENABLE_ZLIB=Off
 cmake --build "$LLVM_IOS" --parallel "$JOBS"
 
+stage "Export compiler toolchains for runtime job"
+tar -czf "$ARTIFACTS/toolchains-stage.tar.gz" \
+  "toolchains/llvm-mingw-$MINGW_VERSION-ucrt-macos-universal" \
+  toolchains/llvm-ios-build toolchains/llvm-project/llvm/include
+if [[ "$MODE" == toolchains ]]; then
+    echo "Toolchain payload created: $ARTIFACTS/toolchains-stage.tar.gz"
+    exit 0
+fi
+fi
+
+if [[ "$MODE" == all || "$MODE" == runtime ]]; then
+export PATH="$MINGW_DIR/bin:$PATH"
+test -x "$MINGW_DIR/bin/arm64ec-w64-mingw32-clang"
+test -f toolchains/llvm-ios-build/include/llvm/Config/llvm-config.h
 stage "Native dependency libraries"
 bash build/gnutls-ios/build.sh
 bash build/ffmpeg/build.sh

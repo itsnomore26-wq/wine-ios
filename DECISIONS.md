@@ -53,3 +53,8 @@
 **Decision:** Remove the missing `x86_64-vcruntime` resource reference and leave Microsoft's runtime DLLs out of the derivative package.
 
 **Reason:** Microsoft's redistribution terms limit distribution to licensed Visual Studio users and require eligible files to remain unmodified. No Visual Studio license or user-supplied runtime files are available in this workspace. Games that require those DLLs may need the user to provide official files or work with Wine builtins.
+
+## 2026-10-13 — Split build into three cloud stages
+**Decision:** Separate pinned compiler toolchains, Wine/FEX/DXMT runtime, and unsigned Xcode packaging into three GitHub Actions jobs. Transfer toolchain/runtime outputs as short-retention artifacts and maintain stage-specific caches.
+
+**Reason:** LLVM static libraries and llvm-mingw setup add substantial time to the Wine/runtime build. Three separately cached jobs make runner timeouts more manageable and keep packaging failures diagnosable. The workflow remains unverified until the first cloud run.
