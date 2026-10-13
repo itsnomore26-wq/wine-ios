@@ -68,3 +68,8 @@
 **Decision:** Replace the abbreviated LLVM pin with full commit `8dfdcc7b7bf66834a761bd8de445840ef68e4d1a` and include the runner selection in each workflow concurrency group.
 
 **Reason:** First cloud toolchain attempt failed because GitHub did not accept the abbreviated hash as a fetchable remote ref. The official GitHub API resolves the full SHA and title. Runner-specific concurrency allows the macOS 26 fallback to run while the Xcode 27 preview lane is queued.
+
+## 2026-10-13 — Apply LLVM iOS linker adjustments to both Apple branches
+**Decision:** Patch both `MATCHES "Darwin"` branches in the pinned `AddLLVM.cmake` to match `Darwin|iOS`, and assert exactly two matches.
+
+**Reason:** The second cloud attempt fetched the pinned LLVM source successfully, then showed that this revision has two Apple linker branches: exported-symbol list generation and dead-strip linking. The original one-match guard stopped before LLVM configuration.

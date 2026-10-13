@@ -57,10 +57,10 @@ p = Path(sys.argv[1])
 s = p.read_text()
 old = 'MATCHES "Darwin"'
 new = 'MATCHES "Darwin|iOS"'
-if new not in s:
-    if s.count(old) != 1:
-        raise SystemExit(f"expected one LLVM AddLLVM.cmake Darwin match, found {s.count(old)}")
-    p.write_text(s.replace(old, new, 1))
+count = s.count(old)
+if count != 2:
+    raise SystemExit(f"expected two LLVM AddLLVM.cmake Darwin matches, found {count}")
+p.write_text(s.replace(old, new))
 PY
 
 cmake -S "$LLVM_SOURCE/llvm" -B "$LLVM_HOST" -G Ninja \

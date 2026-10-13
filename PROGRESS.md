@@ -92,3 +92,14 @@ See `DECISIONS.md`. Adapt Madeira and keep FEX/DXMT for an initial D3D9/10/11-ca
 - Root cause: LLVM commit was pinned using abbreviated SHA `8dfdcc7b7`; `git fetch` rejected it as a remote ref. GitHub API resolved the exact commit to `8dfdcc7b7bf66834a761bd8de445840ef68e4d1a`. Updated the build pin to the full SHA.
 - Updated workflow concurrency keys to include runner choice so Xcode 27 preview queueing cannot prevent a macOS 26 retry from starting.
 - This fix is not yet pushed or cloud-verified. No IPA exists.
+
+### Latest cloud retry status (2026-10-13)
+- Commit `576ef9c` containing the full LLVM SHA and runner-specific concurrency was pushed to `main`. GitHub started fallback workflow run 38446897517; its `macos-26` toolchains job has a runner and recursive checkout is still active. The automatic Xcode 27 run 38446889997 remains separate/queued.
+- Latest disk check: C: 621,002,752 bytes free; J: 95,845,662,720 bytes free. All job logs and downloaded materials are stored under `artifacts/`; no local build was run.
+- No IPA exists yet. Check whether the compiler-stage cache was restored after the first failed run, then continue from toolchains to runtime and package.
+
+### Second cloud build failure and LLVM patch correction (2026-10-13)
+- Run 38446897517 failed in the toolchain job after successfully fetching/checking out the full LLVM commit. The next guard failed: pinned `AddLLVM.cmake` contains two `MATCHES "Darwin"` branches (Apple exported-symbol handling and Apple dead-strip handling), while the script expected one.
+- Saved full log to `artifacts/run-38446897517-toolchains.log`. Updated the patch to verify both expected matches and apply `Darwin|iOS` to each.
+- Latest disk check: C: 616,284,160 bytes free; J: 95,845,445,632 bytes free. No local build ran.
+- Next: push this patch and retry the macOS 26 toolchain stage; continue into runtime and packaging after it passes.
