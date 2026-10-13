@@ -82,11 +82,12 @@ Some 64-bit games need Microsoft's Visual C++ runtime, which is not included
 git clone --recurse-submodules <your GitHub repository URL>
 ```
 
-The unsigned IPA is built by the two-job GitHub Actions workflow in
-`.github/workflows/unsigned-ipa.yml`. Run it with **Actions → Build unsigned iOS
-IPA → Run workflow**. The runtime job caches LLVM, Wine, FEX and DXMT build
-stages; the Xcode job packages the generated app. The workflow has not yet run,
-so its build recipe remains unverified. The historical upstream build notes in
+The unsigned IPA is built by the three-stage GitHub Actions workflow in
+`.github/workflows/unsigned-ipa.yml`. Run it with **Actions ? Build unsigned iOS
+IPA ? Run workflow**. The toolchain job builds pinned LLVM and llvm-mingw, the
+runtime job builds Wine, FEX and DXMT, and the Xcode job packages the generated
+app. Each heavy build stage has its own cache. The workflow has not yet run, so
+its build recipe remains unverified. The historical upstream build notes in
 [`docs/BUILDING.md`](docs/BUILDING.md) explain the component build chain.
 
 ### Repository layout
