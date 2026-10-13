@@ -18,7 +18,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: unsigned-ipa-${{ github.ref }}
+  group: unsigned-ipa-${{ github.ref }}-${{ inputs.runner || 'xcode-27-arm64' }}
   cancel-in-progress: false
 
 jobs:

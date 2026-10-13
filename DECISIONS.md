@@ -58,3 +58,13 @@
 **Decision:** Separate pinned compiler toolchains, Wine/FEX/DXMT runtime, and unsigned Xcode packaging into three GitHub Actions jobs. Transfer toolchain/runtime outputs as short-retention artifacts and maintain stage-specific caches.
 
 **Reason:** LLVM static libraries and llvm-mingw setup add substantial time to the Wine/runtime build. Three separately cached jobs make runner timeouts more manageable and keep packaging failures diagnosable. The workflow remains unverified until the first cloud run.
+
+## 2026-10-13 — Use macOS 26 after Xcode 27 runner queue stall
+**Decision:** Cancel the Xcode 27 preview run after it remained queued for more than five minutes and dispatch the same workflow on the configured macOS 26 fallback. Keep Xcode 27 as the primary target for a later run.
+
+**Reason:** GitHub's Xcode 27 preview announcement documents runner queueing issues during capacity balancing. The fallback runner can establish whether the cloud build stages otherwise execute and may compile the app with the available SDK. Workflow run: https://github.com/itsnomore26-wq/wine-ios/actions/runs/38445942774.
+
+## 2026-10-13 — Pin LLVM by full commit SHA
+**Decision:** Replace the abbreviated LLVM pin with full commit `8dfdcc7b7bf66834a761bd8de445840ef68e4d1a` and include the runner selection in each workflow concurrency group.
+
+**Reason:** First cloud toolchain attempt failed because GitHub did not accept the abbreviated hash as a fetchable remote ref. The official GitHub API resolves the full SHA and title. Runner-specific concurrency allows the macOS 26 fallback to run while the Xcode 27 preview lane is queued.

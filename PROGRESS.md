@@ -73,3 +73,22 @@ See `DECISIONS.md`. Adapt Madeira and keep FEX/DXMT for an initial D3D9/10/11-ca
 ### Authorization poll (2026-10-13)
 - GitHub CLI login process 19568 remains live and waiting for device approval; both configured GH_CONFIG_DIR locations report no signed-in host. No repo exists remotely and no workflow can run until authorization completes.
 - Latest disk check: C: 626,769,920 bytes free; J: 95,845,920,768 bytes free. `project` working tree was clean after commits `6abeb4d` and `b9c3254`; no local build ran.
+
+### GitHub repository and first cloud workflow (2026-10-13)
+- Device sign-in completed; verified GitHub account `itsnomore26-wq`. Created public repository https://github.com/itsnomore26-wq/wine-ios and pushed local `main` at `aff8c7ad301ffe236aebe0ff2c4155214cc0c7f0`. The branch exists remotely.
+- Push triggered Actions run 38445151315: https://github.com/itsnomore26-wq/wine-ios/actions/runs/38445151315. At latest poll the toolchains job was queued. No cloud build result or IPA exists yet.
+- Latest disk check after repository creation/push: C: 612,814,848 bytes free; J: 95,845,900,288 bytes free. Both remain within workspace constraints overall; no local compilation or SDK install occurred.
+
+### Runner fallback attempt (2026-10-13)
+- Primary Actions run 38445151315 on `xcode-27-arm64` remained queued for over five minutes. GitHub's runner-images public-preview announcement documents known queueing issues for the Xcode 27 image. Cancelled the queued run and dispatched the same workflow on its `macos-26` fallback.
+- Fallback run 38445942774 now has a macOS runner. The toolchains job setup completed and recursive checkout is in progress. No build step has started and there is still no IPA.
+- Disk check: C: 625,090,560 bytes free; J: 95,845,900,288 bytes free. No local build occurred.
+- Evidence: https://github.com/actions/runner-images/issues/14404 and https://github.com/itsnomore26-wq/wine-ios/actions/runs/38445942774.
+- Latest observed C: free space after starting the runner: 621,588,480 bytes; J: 95,845,900,288 bytes. The small C: fluctuation is Windows-managed temp churn; project temp variables still point to J:.
+- Current action state: checkout and cache restore succeeded; `Build compiler toolchains` is actively running on macOS 26.
+
+### First cloud build failure and source pin fix (2026-10-13)
+- Fallback Actions run 38445942774 started on macOS 26, completed checkout/cache setup, then failed in `Build compiler toolchains` with exit code 128. Saved the complete job log to `artifacts/run-38445942774-toolchains.log`.
+- Root cause: LLVM commit was pinned using abbreviated SHA `8dfdcc7b7`; `git fetch` rejected it as a remote ref. GitHub API resolved the exact commit to `8dfdcc7b7bf66834a761bd8de445840ef68e4d1a`. Updated the build pin to the full SHA.
+- Updated workflow concurrency keys to include runner choice so Xcode 27 preview queueing cannot prevent a macOS 26 retry from starting.
+- This fix is not yet pushed or cloud-verified. No IPA exists.

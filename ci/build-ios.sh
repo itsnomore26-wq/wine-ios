@@ -7,7 +7,7 @@ ARTIFACTS="$ROOT/artifacts"
 TOOLCHAINS="$ROOT/toolchains"
 MODE="${1:-all}"
 JOBS="$(sysctl -n hw.ncpu)"
-LLVM_COMMIT="8dfdcc7b7"
+LLVM_COMMIT="8dfdcc7b7bf66834a761bd8de445840ef68e4d1a"
 MINGW_VERSION="20260421"
 MINGW_SHA256="bd85a3975723815cef28dbbd2ca2cb0c926f6b348a12a0453f39f7af273cb3f7"
 
