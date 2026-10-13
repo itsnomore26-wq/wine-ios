@@ -64,7 +64,8 @@ p.write_text(s.replace(old, new))
 PY
 
 cmake -S "$LLVM_SOURCE/llvm" -B "$LLVM_HOST" -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release -DLLVM_TARGETS_TO_BUILD=Native \
+  -DCMAKE_BUILD_TYPE=Release -DCMAKE_MACOSX_BUNDLE=OFF \
+  -DLLVM_TARGETS_TO_BUILD=Native \
   -DLLVM_BUILD_TOOLS=ON -DLLVM_INCLUDE_TESTS=OFF -DLLVM_ENABLE_ZLIB=OFF
 cmake --build "$LLVM_HOST" --target llvm-tblgen --parallel "$JOBS"
 cmake -S "$LLVM_SOURCE/llvm" -B "$LLVM_IOS" -G Ninja \

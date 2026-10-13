@@ -73,3 +73,8 @@
 **Decision:** Patch both `MATCHES "Darwin"` branches in the pinned `AddLLVM.cmake` to match `Darwin|iOS`, and assert exactly two matches.
 
 **Reason:** The second cloud attempt fetched the pinned LLVM source successfully, then showed that this revision has two Apple linker branches: exported-symbol list generation and dead-strip linking. The original one-match guard stopped before LLVM configuration.
+
+## 2026-10-13 — Disable app-bundle mode for host llvm-tblgen
+**Decision:** Configure the native LLVM host build with `CMAKE_MACOSX_BUNDLE=OFF`.
+
+**Reason:** The third cloud toolchain run reached LLVM configuration, where CMake marked the command-line `llvm-tblgen` executable as a macOS app bundle. LLVM's install rule supplies a runtime destination but no bundle destination, causing CMake to stop. The host TableGen tool should be a regular executable.

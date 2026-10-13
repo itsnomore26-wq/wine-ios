@@ -103,3 +103,9 @@ See `DECISIONS.md`. Adapt Madeira and keep FEX/DXMT for an initial D3D9/10/11-ca
 - Saved full log to `artifacts/run-38446897517-toolchains.log`. Updated the patch to verify both expected matches and apply `Darwin|iOS` to each.
 - Latest disk check: C: 616,284,160 bytes free; J: 95,845,445,632 bytes free. No local build ran.
 - Next: push this patch and retry the macOS 26 toolchain stage; continue into runtime and packaging after it passes.
+
+### Third cloud build failure and host CMake adjustment (2026-10-13)
+- Run 38448130439 successfully fetched LLVM, passed the two-branch iOS patch guard, and entered LLVM CMake configuration. It failed because CMake marked the native `llvm-tblgen` executable as `MACOSX_BUNDLE`, while LLVM's install rule supplies only a runtime destination. Full log: `artifacts/run-38448130439-toolchains.log`.
+- Added `-DCMAKE_MACOSX_BUNDLE=OFF` to the host LLVM configuration; `llvm-tblgen` is a command-line build tool and does not need an app bundle.
+- Latest disk check: C: 611,835,904 bytes free; J: 95,845,052,416 bytes free. No local build ran.
+- Next: push and retry the toolchain stage on macOS 26.
