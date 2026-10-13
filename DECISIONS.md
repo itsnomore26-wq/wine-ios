@@ -33,9 +33,11 @@
 **Reason:** The existing library stores relative paths inside `drive_c` and resolves them against its Wine prefix. Persisting a bookmark to external files would require rewriting that path and launch model. Copying provides a working sandbox-compatible import and makes launch behavior consistent with the existing library.
 
 ## 2026-10-13 — Remove converter payloads from derived source and target
-**Decision:** Stage deletion of the Apple Metal Shader Converter dylib and the Madeira D3D12 runtime/test binaries; remove their Xcode resource/signing phase. D3D12 is excluded from the first target. Before publishing, create a clean derived Git history that does not retain the upstream commit containing the proprietary dylib.
+**Decision:** Stage deletion of the Apple Metal Shader Converter dylib and the Madeira D3D12 runtime/test binaries; remove their Xcode resource/signing phase. D3D12 is excluded from the first target. Build the derivative on a clean root Git commit with no upstream history.
 
 **Reason:** Excluding the runtime only at packaging time would still leave the proprietary binary in the derived repository history. A clean root commit allows reuse of the open-source source state without making that binary reachable from the published repo.
+
+**Result:** Created `c0e4ea5` as the single root commit, removed the upstream remote and stale local refs/stash, and pruned unreachable objects. `git rev-list --objects --all` contains no `libmetalirconverter.dylib`.
 
 ## 2026-10-13 — Remove D3D12-only app hooks from the first build
 **Decision:** Remove the in-app shader converter canary call and declarations, and omit D3D12-only configuration entries from the generated Settings catalog and library session menu.
