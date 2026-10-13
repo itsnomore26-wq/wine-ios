@@ -69,3 +69,7 @@ See `DECISIONS.md`. Adapt Madeira and keep FEX/DXMT for an initial D3D9/10/11-ca
 - GitHub CLI device sign-in is still waiting. `gh auth status` reports no logged-in hosts, so repo creation, push, and cloud execution cannot start yet. The existing pending device approval uses code `E549-6897` at https://github.com/login/device.
 - Latest disk check after documentation refresh: C: 628,133,888 bytes free; J: 95,845,941,248 bytes free. Free space fluctuates with Windows-managed temporary files; all project tool temp/cache variables remain on J:.
 - Next: complete that device approval, then create/push `wine-ios` and run the workflow.
+
+### Authorization poll (2026-10-13)
+- GitHub CLI login process 19568 remains live and waiting for device approval; both configured GH_CONFIG_DIR locations report no signed-in host. No repo exists remotely and no workflow can run until authorization completes.
+- Latest disk check: C: 626,769,920 bytes free; J: 95,845,920,768 bytes free. `project` working tree was clean after commits `6abeb4d` and `b9c3254`; no local build ran.
